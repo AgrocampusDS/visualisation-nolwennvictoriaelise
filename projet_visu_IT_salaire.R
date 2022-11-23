@@ -7,7 +7,6 @@ library(maps)
 library(ggrepel)
 library(ggpubr)
 library(scatterpie)
-<<<<<<< Updated upstream
 library(sf)
 library(colorspace)
 
@@ -54,27 +53,13 @@ ggplot() +
 
 
 #Importations des données
-data2018 <- read.csv("~/GitHub/projet_visu_trains/archive/IT Salary Survey EU 2018.csv", 
-                       header = TRUE, 
-                       sep = ";", 
-                       encoding = "latin1")
-data2018$City <- as.factor(data2018$City)
-data2018$Gender <- as.factor(data2018$Gender)
-levels(data2018$City)
 
-
-data2019 <- read.csv("T Salary Survey EU 2019.csv", 
+data2019 <- read.csv("~/GitHub/visualisation-nolwennvictoriaelise/archive/T Salary Survey EU 2019.csv", 
                      header = TRUE, 
                      sep = ";", 
                      encoding = "latin1")
 data2019$City <- as.factor(data2019$City)
 data2019$Gender <- as.factor(data2019$Gender)
-
-data2020 <- read.csv("~/GitHub/visu_femmes_IT/archive/IT Salary Survey EU  2020.csv", 
-                       header = TRUE, 
-                       sep = ";", 
-                       encoding = "latin1")
-data2020$City <- as.factor(data2020$City)
 
 #Mise au propre du jeu de données
 #Mise au propre des noms des villes
@@ -375,15 +360,18 @@ dta_graph3$position = factor(dta_graph3$position,
                              levels = c("Senior Women","Middle Women", "Junior Women",
                                         "Senior Men","Middle Men", "Junior Men"))
 
-graph3 <- ggplot(dta_graph3) + 
+
+
+
+ graph3 <- ggplot(dta_graph3) + 
   geom_area(aes(x = list_age, y = count, fill = position),
             stat = "identity") +
   scale_y_continuous(labels = abs,breaks = seq(-60, 60, 5)) +
   scale_x_continuous(breaks = seq(20, 54, 1)) +
   scale_fill_manual(values=pal) +
   xlab("Age of participants (years)") +
-  ylab("Number of participants") +
-  theme(panel.background=element_rect(fill="white"))
+  ylab("Number of participants")
+  #theme(panel.background=element_rect(fill="white"))
 graph3
   
 # A régler : pb de blanc vers 41 ans chez les hommes
