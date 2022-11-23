@@ -337,6 +337,80 @@ senior_age_h = sapply(list_age,function(i){
   return(length(which(dta_age$Seniority_level2=="Senior")))
 })
 
+classes_age = c("23-25","26-28", "29-31", "32-34", "35-37", "38-40", "41-43", 
+                "44-46", "47-49","50-54")
+
+nb_senior = data.frame(list_age,senior_age_f,senior_age_h)
+
+nb_seniors_h_classes = c(sum(senior_age_h[1:3])/(sum(senior_age_h[1:3])+sum(senior_age_f[1:3])),
+                         sum(senior_age_h[4:6])/(sum(senior_age_h[4:6])+sum(senior_age_f[4:6])),
+                         sum(senior_age_h[7:9])/(sum(senior_age_h[7:9])+sum(senior_age_f[7:9])),
+                         sum(senior_age_h[10:12])/(sum(senior_age_h[10:12])+sum(senior_age_f[10:12])),
+                         sum(senior_age_h[13:15])/(sum(senior_age_h[13:15])+sum(senior_age_f[13:15])),
+                         sum(senior_age_h[16:18])/(sum(senior_age_h[16:18])+sum(senior_age_f[16:18])),
+                         sum(senior_age_h[19:21])/(sum(senior_age_h[19:21])+sum(senior_age_f[19:21])),
+                         sum(senior_age_h[22:24])/(sum(senior_age_h[22:24])+sum(senior_age_f[22:24])),
+                         sum(senior_age_h[25:27])/(sum(senior_age_h[25:27])+sum(senior_age_f[25:28])),
+                         sum(senior_age_h[28:30])/(sum(senior_age_h[28:30])+sum(senior_age_f[28:30])))
+
+nb_seniors_h_classes = c(sum(senior_age_h[1:3])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[4:6])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[7:9])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[10:12])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[13:15])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[16:18])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[19:21])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[22:24])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[25:27])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_h[28:30])/sum(senior_age_h+senior_age_f))
+
+
+nb_seniors_f_classes = c(sum(senior_age_f[1:3])/(sum(senior_age_h[1:3])+sum(senior_age_f[1:3])),
+                         sum(senior_age_f[4:6])/(sum(senior_age_h[4:6])+sum(senior_age_f[4:6])),
+                         sum(senior_age_f[7:9])/(sum(senior_age_h[7:9])+sum(senior_age_f[7:9])),
+                         sum(senior_age_f[10:12])/(sum(senior_age_h[10:12])+sum(senior_age_f[10:12])),
+                         sum(senior_age_f[13:15])/(sum(senior_age_h[13:15])+sum(senior_age_f[13:15])),
+                         sum(senior_age_f[16:18])/(sum(senior_age_h[16:18])+sum(senior_age_f[16:18])),
+                         sum(senior_age_f[19:21])/(sum(senior_age_h[19:21])+sum(senior_age_f[19:21])),
+                         sum(senior_age_f[22:24])/(sum(senior_age_h[22:24])+sum(senior_age_f[22:24])),
+                         sum(senior_age_f[25:28])/(sum(senior_age_h[25:28])+sum(senior_age_f[25:28])),
+                         sum(senior_age_f[28:30])/(sum(senior_age_h[28:30])+sum(senior_age_f[28:30])))
+
+nb_seniors_f_classes = c(sum(senior_age_f[1:3])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[4:6])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[7:9])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[10:12])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[13:15])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[16:18])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[19:21])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[22:24])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[25:28])/sum(senior_age_h+senior_age_f),
+                         sum(senior_age_f[28:30])/sum(senior_age_h+senior_age_f))
+dta_graph_prop = data.frame(classes_age, nb_seniors_f_classes, nb_seniors_h_classes)
+
+dta_graph_prop = rbind(data.frame(classes_age,"Gender"= c("Female"), "prop"=nb_seniors_f_classes),
+                       data.frame(classes_age,"Gender" = c("Male"),"prop"=nb_seniors_h_classes))
+
+
+graph_prop <- ggplot(data= dta_graph_prop,aes(x=classes_age, y=prop, group=Gender, color=Gender)) +
+  geom_line()
+
+prop_senior_f = (senior_age_f)/(senior_age_f+middle_age_f+junior_age_f+senior_age_h+middle_age_h+junior_age_h)
+prop_senior_f = sapply(prop_senior_f, function(i){
+  if(is.nan(i)){return (0)}
+    else{return(i)}
+})
+prop_senior_h = (senior_age_h)/(senior_age_f+middle_age_f+junior_age_f+senior_age_h+middle_age_h+junior_age_h)
+
+dta_graph_prop = data.frame(list_age, prop_senior_f, prop_senior_f)
+
+dta_graph_prop = rbind(data.frame(list_age,"Gender"= c("Female"), "prop"=prop_senior_f),
+                   data.frame(list_age,"Gender" = c("Male"),"prop"=prop_senior_h))
+
+
+graph_prop <- ggplot(data= dta_graph_prop,aes(x=list_age, y=prop, group=Gender, color=Gender)) +
+              geom_line()
+
 dta_graph3 = data.frame(list_age,
                         junior_age_f,
                         middle_age_f,
