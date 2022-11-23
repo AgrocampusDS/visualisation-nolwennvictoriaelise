@@ -1,6 +1,6 @@
 ---
-title: "Un joli titre pour le dashboard"
-author: "Marie-Pierre Etienne"
+title: "La place de la femme dans la profession informatique"
+author: "Elise Hodbert, Nolwenn Paquet, Victoria Bancel"
 output: 
   flexdashboard::flex_dashboard:
     theme: bootstrap
@@ -39,14 +39,9 @@ Column {data-width=650}
 
 ### An easy solution for dashboard
 
-```{r, echo = TRUE}
-#install.package('flexdasboard')
-#rmarkdown::draft("dashboard.Rmd", template = "flex_dashboard", package = "flexdashboard")
-```
+Le [lien](https://rmarkdown.rstudio.com/flexdashboard/index.html) renvoie à l'étude réalisée en.
 
-The [flexdashboard website](https://rmarkdown.rstudio.com/flexdashboard/index.html) provides multiple advanced examples.
-
-### Some static graph
+### Répartition des hommes et des femmes dans les
 
 ```{r data, eval = TRUE, echo = FALSE, results='hide', message = FALSE, warning=FALSE}
 n <- 100
