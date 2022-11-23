@@ -9,6 +9,7 @@ library(ggpubr)
 library(scatterpie)
 library(sf)
 library(colorspace)
+library(plyr)
 
 # A faire : ordonner les parties (j'ai l'impression que la partie de la carte
 # est mise avant la partie de l'importation de données, c'est bizarre non ?)
@@ -107,7 +108,7 @@ a$count = as.numeric(a$count)
 nvelles_positions = c()
 for (i in 1:nrow(a)){
   if (a[i,1] < 10){
-    nvelles_positions = c(nvelles_positions,"Other")
+    nvelles_positions = c(nvelles_positions,"Other professions")
   }
   else if(a[i,1] %in% c("Data Scientist","Data Analyst","Data Engineer")){
     nvelles_positions=c(nvelles_positions,"Data Scientist")
@@ -152,6 +153,7 @@ salaries_hommes = sapply(unique(nvelles_positions),function(i){
   return(mean(dta_hommes$Yearly_salary[which(dta_hommes$Position2 == i)],na.rm=T))
 })
 
+
 dta_graph1<- rbind(data.frame("Position" = unique(nvelles_positions),
                               "Gender" = c("Female"),
                               "Count" = positions_femmes,
@@ -165,12 +167,33 @@ dta_graph1$Position2 <- ifelse(dta_graph1$Gender == "Male",
                                -1*dta_graph1$Count,
                                dta_graph1$Count)
 
-#dta_graph1$Salaries <- ifelse(dta_graph1$Gender == "Male",
-                              # round(-1*dta_graph1$Salaries),
-                              # round(dta_graph1$Salaries))
+
+difference_salaire <- sapply(unique(nvelles_positions),function(i){
+  dta_hommes = subset(dta, Gender == "Male" & Position2 == i)
+  dta_femmes = subset(dta, Gender == "Female" & Position2 == i)
+  #diff <- dta_hommes$Yearly_salary[which(dta_hommes$Position2 == i)] - dta_femmes$Yearly_salary[which(dta_hommes$Position2 == i)]
+  diff <- mean(dta_hommes$Yearly_salary, na.rm = TRUE) - mean(dta_femmes$Yearly_salary, na.rm = TRUE)
+  return(diff)
+})
+
+dta_difference <- data.frame(cbind(unique(nvelles_positions)), round_any(difference_salaire, 500))
+colnames(dta_difference)[2] <- "difference_salaire"
+colnames(dta_difference)[1] <- "Position"
+dta_difference <- dta_difference[-which(dta_difference$Position == "DevOps"),] 
+#on enlève la ligne du métier correspondant à DevOps car pas de données pour les femmes
+
+# salaire moyen des hommes et des femmes pour tous métiers confondus
+salaire_moy_hommes_femmes <- sapply(unique(dta$Gender), function(i){
+  dta_genre = subset(dta, Gender == i)
+  moy_genre <- mean(dta_genre$Yearly_salary, na.rm = TRUE) 
+  return(moy_genre)
+})
+
+
 
 #on arrondi les salaires aux 5000 euros près
 library(plyr)
+library(scales)
 dta_graph1$Salaries <- round_any(dta_graph1$Salaries, 5000)
 format(dta_graph1$Salaries, scientific = TRUE, )
 
@@ -194,49 +217,64 @@ ggplot(dta_graph1) +
   )
 
 #graphique avec le salaire
-dta_graph1_bis <- data.frame(apply(dta_graph1, 2, rev))
-dta_graph1_bis$Position <- as.factor(dta_graph1_bis$Position)
-dta_graph1_bis$Gender <- as.factor(dta_graph1_bis$Gender)
-dta_graph1_bis$Salaries <- as.numeric(dta_graph1_bis$Salaries)
-
-
-# ggplot(dta_graph1) +
-#   geom_bar(aes(x = Position, y = Salaries, fill = Gender),
+# dta_graph1_bis <- data.frame(apply(dta_graph1, 2, rev))
+# dta_graph1_bis$Position <- as.factor(dta_graph1_bis$Position)
+# dta_graph1_bis$Gender <- as.factor(dta_graph1_bis$Gender)
+# dta_graph1_bis$Salaries <- as.numeric(dta_graph1_bis$Salaries)
+# 
+# 
+# 
+# 
+# position <- reorder(dta_graph1_bis$Position[1:14], dta_graph1_bis$Salaries[1:14])
+# 
+# 
+# ggplot(dta_graph1_bis) +
+#   geom_bar(aes(x = reorder(Position, Salaries), y = Salaries, fill = Gender),
 #            stat = "identity",
 #            position = "identity") +
-#   geom_text(aes(x = Position, y = Salaries, label = Salaries),
-#             vjust = ifelse(dta_graph1$Position2 >= 0, 0, 1)) +
-#   scale_y_continuous(labels = abs,breaks = seq(-80000, 80000, 20000)) + 
+#   geom_text(aes(x = Position, y = Salaries, label = paste0(Salaries * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", cex = 3.5,
+#             vjust = ifelse(dta_graph1_bis$Gender == 'Male', 1.2, 1.8)) +
+#   scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "K", accuracy = 1),
+#                      breaks = seq(0, 90000, 15000)) + 
 #   labs(title = "Yearly salary in different IT positions in 2019",
 #        subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.",
 #        caption = "Source : Viktor Shcherban and Ksenia Legostay, www.") +
+#   scale_fill_manual(values = c("#645A9F",'#005D67')) +
 #   theme(panel.background = element_rect(fill= "white", colour = "white"),
 #         axis.title.x = element_blank(),
-#         axis.text.x = element_text(angle=90),
-#         plot.margin = margin(1.5,0,1,1, "cm")
-#   )
+#         axis.title.y = element_text(family = "sans", size = 20, vjust = -3),
+#         axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 0.9, hjust = 0.9, face = "bold", color = "black"), #gras/taille/couleur à changer
+#         axis.text.y = element_text(family="sans",size=13, hjust = 1, margin = margin(40, 40, 40, 40), face = "bold", color = "black"),
+#         axis.ticks=element_blank(),
+#         legend.text = element_text(family = "sans", size = 13),
+#         legend.title = element_text(family = "sans", size = 15),
+#         legend.margin = margin(1,1,1,1, "cm"),
+#         plot.margin = margin(1,1,1,0.3, "cm"),
+#         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
+#         plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15)
+#         )
 
-library(scales)
+##graphique avec la DIFFERENCE de salaire
 
-position <- reorder(dta_graph1_bis$Position[1:14], dta_graph1_bis$Salaries[1:14])
-
-
-ggplot(dta_graph1_bis) +
-  geom_bar(aes(x = reorder(Position, Salaries), y = Salaries, fill = Gender),
+ggplot(dta_difference) +
+  geom_bar(aes(x = reorder(Position, difference_salaire), y = difference_salaire), fill = '#005D67',
            stat = "identity",
            position = "identity") +
-  geom_text(aes(x = Position, y = Salaries, label = paste0(Salaries * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", cex = 3.5,
-            vjust = ifelse(dta_graph1_bis$Gender == 'Male', 1.2, 1.8)) +
+  geom_text(aes(x = Position, y = difference_salaire, label = paste0(difference_salaire * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", 
+            cex = 4, vjust = 1.4) +
   scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "K", accuracy = 1),
-                     breaks = seq(0, 90000, 15000)) + 
+                     breaks = seq(0, 50000, 5000)) +
+  ylab("Salaries difference") +
   labs(title = "Yearly salary in different IT positions in 2019",
        subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.",
        caption = "Source : Viktor Shcherban and Ksenia Legostay, www.") +
-  scale_fill_manual(values = c("#645A9F",'#005D67')) +
+  scale_fill_manual(values = c('#005D67')) +
+  geom_hline(yintercept = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2], color = 'red', linewidth = 2) +
+  annotate("text", x = 5, y = 300, vjust = -1, label = "Average wage difference between men and women") +
   theme(panel.background = element_rect(fill= "white", colour = "white"),
         axis.title.x = element_blank(),
         axis.title.y = element_text(family = "sans", size = 20, vjust = -3),
-        axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 0.9, hjust = 0.9, face = "bold", color = "black"), #gras/taille/couleur à changer
+        axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 1, hjust = 1, face = "bold", color = "black"), #gras/taille/couleur à changer
         axis.text.y = element_text(family="sans",size=13, hjust = 1, margin = margin(40, 40, 40, 40), face = "bold", color = "black"),
         axis.ticks=element_blank(),
         legend.text = element_text(family = "sans", size = 13),
@@ -245,8 +283,11 @@ ggplot(dta_graph1_bis) +
         plot.margin = margin(1,1,1,0.3, "cm"),
         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
         plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15)
-        )
-  
+        
+        
+  )
+
+
 #en blanc/ et gras données salaires des bar
 #inverser légende gender male/female
 #police sans
@@ -277,6 +318,8 @@ for (position in dta_graph1_male$Position){
   moy <- mean(moy, na.rm = TRUE)
   tot_moy_male <- c(tot_moy_male, moy)
 }
+
+
 
 ###### Graph 3
 
@@ -392,7 +435,11 @@ dta_graph_prop = rbind(data.frame(classes_age,"Gender"= c("Female"), "prop"=nb_s
                        data.frame(classes_age,"Gender" = c("Male"),"prop"=nb_seniors_h_classes))
 
 
-graph_prop <- ggplot(data= dta_graph_prop,aes(x=classes_age, y=prop, group=Gender, color=Gender)) +
+graph_prop <- ggplot(data= dta_graph_prop,
+                     aes(x=classes_age, 
+                         y=prop, 
+                         group=Gender, 
+                         color=Gender)) +
   geom_line()
 
 prop_senior_f = (senior_age_f)/(senior_age_f+middle_age_f+junior_age_f+senior_age_h+middle_age_h+junior_age_h)
@@ -408,8 +455,12 @@ dta_graph_prop = rbind(data.frame(list_age,"Gender"= c("Female"), "prop"=prop_se
                    data.frame(list_age,"Gender" = c("Male"),"prop"=prop_senior_h))
 
 
-graph_prop <- ggplot(data= dta_graph_prop,aes(x=list_age, y=prop, group=Gender, color=Gender)) +
+graph_prop <- ggplot(data= dta_graph_prop,
+                     aes(x=list_age, 
+                         y=prop, 
+                         group=Gender, color=Gender)) +
               geom_line()
+graph_prop
 
 dta_graph3 = data.frame(list_age,
                         junior_age_f,
