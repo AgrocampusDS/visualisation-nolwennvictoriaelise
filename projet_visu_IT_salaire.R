@@ -324,30 +324,44 @@ for (i in 1:nrow(nb_senior)){
   senior_f_cum = c(senior_f_cum,sum(nb_senior$senior_age_f[1:i]))
   senior_h_cum = c(senior_h_cum,sum(nb_senior$senior_age_h[1:i]))
 }
+
 senior_f_cum = senior_f_cum/nrow(subset(dta,Gender == "Female"))
 senior_h_cum = senior_h_cum/nrow(subset(dta,Gender == "Male"))
 senior_dif_cum = senior_h_cum - senior_f_cum
 
-dta_graph3 = rbind(data.frame(list_age,"Gender" = c("Female"), "prop" = senior_f_cum),
-                     data.frame(list_age,"Gender" = c("Male"),"prop" = senior_h_cum))
+dta_graph3 = rbind(data.frame(list_age,"Genre" = c("Femme"), "prop" = senior_f_cum),
+                     data.frame(list_age,"Genre" = c("Homme"),"prop" = senior_h_cum))
 
-dta_graph3 = rbind(data.frame(list_age,"Gender" = c("Male"), "prop" = senior_h_cum),
-                   data.frame(list_age,"Gender" = c("Female"),"prop" = senior_f_cum))
+dta_graph3 = rbind(data.frame(list_age,"Genre" = c("Homme"), "prop" = senior_h_cum),
+                   data.frame(list_age,"Genre" = c("Femme"),"prop" = senior_f_cum))
 
 
 graph3 <- ggplot(data = dta_graph3,aes(x = list_age, 
                                        y = prop, 
-                                       color = Gender,
-                                       group=Gender)) +
-  geom_line(linewidth=1.3) +
-  labs(title = "",
-       subtitle ="") +
-  ylab("Nombre cumulé de seniors rappoté au nombre total de personnes du même genre") +
+                                       color = Genre,
+                                       group=Genre)) +
+  geom_line(linewidth=1.4) +
+  labs(title = "Evolution du grade professionnel selon l'âge pour les hommes et les femmes") +
+  ylab("Proportion cumulée de travailleurs Seniors sur\nle nombre total de personnes") +
   xlab("Age (années)") +
+  scale_color_manual(values=c(pal[2],pal[5])) +
   scale_x_continuous(breaks=seq(20,54,2)) +
+  scale_y_continuous(labels = label_number(scale = 100, suffix = "%", accuracy = 1),
+                     breaks = seq(0, 1, 0.05)) +
+  annotate("text",x=53,y=0.31,label="Total : 29.5%") +
+  annotate("text",x=53,y=0.55,label="Total : 56.8%") +
   theme(panel.background = element_rect(fill = "white"),
         axis.line = element_line(size = 1, colour = "black"),
-        panel.grid = element_line(color = "grey"))
-
+        panel.grid = element_line(color = "grey"),
+        legend.text = element_text(family = "sans", size = 13),
+        legend.title = element_text(family = "sans", size = 15),
+        legend.margin = margin(1,1,1,1, "cm"),
+        plot.margin = margin(1,1,1,0.3, "cm"),
+        plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15),
+        axis.title = element_text(family = "sans", size = 15, vjust = -3),
+        axis.text.x = element_text(family="sans",size=13, vjust = 1, hjust = 1, face = "bold", color = "black"), #gras/taille/couleur à changer
+        axis.text.y = element_text(family="sans",size=13, hjust = 1, margin = margin(40, 40, 40, 40), face = "bold", color = "black"),
+        axis.ticks=element_blank(),
+        legend.key = element_rect(fill="white"))
 graph3
-
