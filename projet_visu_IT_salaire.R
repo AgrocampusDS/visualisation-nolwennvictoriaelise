@@ -8,7 +8,9 @@ library(ggrepel)
 library(ggpubr)
 library(scatterpie)
 library(colorspace)
+library(grid)
 library(plyr)
+
 
 # Palette de couleurs utilisée dans les graphiques
 pal = c(sequential_hcl(3, palette = "Purp"),sequential_hcl(3, palette = "Mint"))
@@ -192,33 +194,37 @@ format(dta_graph1$Salaries, scientific = TRUE, )
 
 ##graphique avec la DIFFERENCE de salaire
 
-ggplot(dta_difference) +
-  geom_rect(aes(xmin=0, xmax=50, ymin=0, ymax=50), fill="green", alpha=0.1, inherit.aes = FALSE) + 
-  geom_bar(aes(x = reorder(Position, difference_salaire), y = difference_salaire), fill = '#005D67',
+
+ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = difference_salaire, fill = )) +
+  geom_bar(aes(fill = 'Surplus salarial gagné\npar les hommes (en milliers d\'euros)'), 
            stat = "identity",
            position = "identity") +
   scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "K", accuracy = 1),
                      breaks = seq(0, 50000, 5000)) +
-  ylab("Salaries difference") +
-  labs(title = "Yearly salary in different IT positions in 2019",
-       subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.") +
+  ylab("") +
+  labs(fill = "Légende", title = "Différence salariale annuelle entre les hommes et les femmes\n selon les différents métiers de l'IT") +
   scale_fill_manual(values = c('#005D67')) +
-  geom_hline(yintercept = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2] + 500, color = 'red', linewidth = 1, ) +
-  geom_text( x = 4, y = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2], vjust = -1, color = "red", label = "Average wage difference between men and women") +
+  geom_hline(yintercept = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2] + 500, color = 'red', linewidth = 1) +
+  geom_text( x = 4, y = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2], vjust = -1, color = "red",size = 4.5, label = "Différence de salaire moyen entre les hommes et les femmes") +
   geom_text(aes(x = Position, y = difference_salaire, label = paste0(difference_salaire * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", 
             cex = 4.5, vjust = 1.4) +
+  annotation_custom(grob = linesGrob(), xmin = 2.6, xmax = 2.75, ymin = 80, ymax = 80) +
   theme(panel.background = element_rect(fill= "white", colour = "white"),
+        axis.line.y = element_line(linewidth = 1),
         axis.title.x = element_blank(),
         axis.title.y = element_text(family = "sans", size = 20, vjust = -3),
         axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 1, hjust = 1, face = "bold", color = "black"), #gras/taille/couleur à changer
         axis.text.y = element_text(family="sans",size=13, hjust = 1, margin = margin(40, 40, 40, 40), face = "bold", color = "black"),
         axis.ticks=element_blank(),
         legend.text = element_text(family = "sans", size = 13),
-        legend.title = element_text(family = "sans", size = 15),
-        legend.margin = margin(1,1,1,1, "cm"),
-        plot.margin = margin(1,1,1,0.3, "cm"),
+        legend.title = element_text(family = "sans", size = 15, vjust = 1.5, face = "bold"),
+        legend.title.align = 0.3,
+        legend.margin = margin(0,1,0,0, "cm"),
+        legend.position = c(0.6,0.8),
+        plot.margin = margin(1,2,0.5,0.3, "cm"),
         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
         plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15))
+
 
 
 #en blanc/ et gras données salaires des bar
