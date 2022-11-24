@@ -93,7 +93,7 @@ Column {.tabset .tabset-fade}
 
 Le [lien](https://www.asdcode.de/2020/01/it-salary-survey-december-2019.html) renvoie à l'étude sur laquelle se base notre exposé.
 
-L'étude provient d'une enquête menée auprès de personnes travaillant dans le domaine de l'IT. Cette enquête a été menée en Allemagne, en 2019. 826 personnes y ont participé.
+L'étude provient d'une enquête menée auprès de personnes travaillant dans le domaine de l'IT. Cette enquête a été menée en Allemagne, en 2019. 826 personnes y ont participé, dont 129 femmes et 687 hommes.
 
 Dans notre exposé, nous nous interessons plus particuilièrement aux ingéalités qui existent entre les hommes et les femmmes, dans ce domaine de l'IT. Nous nous intéressons plus particuilièrement à trois inégalités : nombre de postes pourvus, salaires et positions au sein de l'entreprise.
 
@@ -111,18 +111,18 @@ Cities_allemagne <- Cities_allemagne[-10,]
 female = data.frame(table(dta$City[dta$Gender == "Female"]))
 male = data.frame(table(dta$City[dta$Gender == "Male"]))
 sum = female$Freq + male$Freq
-dta_graph = data.frame(Cities_allemagne, Female = female$Freq, Male = male$Freq, sum = sum)
+dta_graph = data.frame(Cities_allemagne, Femme = female$Freq, Homme = male$Freq, sum = sum)
 carte = ggplot() + 
   geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
                fill="grey",color="black", alpha = 0.5)+
-  geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
-  geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   geom_scatterpie(data = dta_graph, 
                 aes(x = long, y = lat,group = name, r = log(sum)/8),
-                alpha =.6, cols = c("Female","Male"), color = NA)+
-                scale_fill_manual(name = "Gender", values = c('#645A9F','#005D67'))+
+                alpha =.5, cols = c("Femme","Homme"), color = "black")+
+                scale_fill_manual(name = "Genre", values = c('#645A9F','#005D67'))+
   geom_scatterpie_legend(radius = log(dta_graph$sum)/8, x = 4, y = 47.5, 
                          labeller = function(x) round(exp(x*8), 0))+
+  geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
+  geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   theme_void()+ 
   labs(title = "Repartition géographique des postes des participants de l'enquête",
      caption = "Source : Viktor Shcherban and Ksenia Legostay")+

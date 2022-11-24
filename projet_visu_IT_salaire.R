@@ -72,14 +72,14 @@ Cities_allemagne <- Cities_allemagne[-10,]
 ggplot() + 
   geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
                fill="grey",color="black", alpha = 0.5)+
-  geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
-  geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   geom_scatterpie(data = dta_graph, 
                   aes(x = long, y = lat,group = name, r = log(sum)/8),
-                  alpha =.6, cols = c("Female","Male"), color = NA)+
+                  alpha =.5, cols = c("Female","Male"), color = "Black")+
   scale_fill_manual(name = "Gender", values = c('#645A9F','#005D67'))+
   geom_scatterpie_legend(radius = log(dta_graph$sum)/8, x = 4, y = 47.5, 
                          labeller = function(x) round(exp(x*8), 0))+
+  geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
+  geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   theme_void()+ 
   labs(title = "Repartition géographique des postes des participants de l'enquête",
        caption = "Source : Viktor Shcherban and Ksenia Legostay")+
