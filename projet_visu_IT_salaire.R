@@ -190,66 +190,10 @@ library(scales)
 dta_graph1$Salaries <- round_any(dta_graph1$Salaries, 5000)
 format(dta_graph1$Salaries, scientific = TRUE, )
 
-
-
-#graphique avec le count
-ggplot(dta_graph1) +
-  geom_bar(aes(x = Position, y = Position2, fill = Gender),
-           stat = "identity",
-           position = "identity") +
-  geom_text(aes(x = Position, y = Position2, label = abs(Position2)),
-            vjust = ifelse(dta_graph1$Position2 >= 0, 0, 1)) +
-  scale_y_continuous(labels = abs,breaks = seq(-200, 200, 20)) + 
-  labs(title = "People working in different IT positions in 2019",
-       subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.",
-       caption = "Source : Viktor Shcherban and Ksenia Legostay, www.") +
-  theme(panel.background = element_rect(fill= "white", colour = "white"),
-        axis.title.x = element_blank(),
-        axis.text.x = element_text(angle=90),
-        plot.margin = margin(1.5,0,1,1, "cm")
-  )
-
-#graphique avec le salaire
-# dta_graph1_bis <- data.frame(apply(dta_graph1, 2, rev))
-# dta_graph1_bis$Position <- as.factor(dta_graph1_bis$Position)
-# dta_graph1_bis$Gender <- as.factor(dta_graph1_bis$Gender)
-# dta_graph1_bis$Salaries <- as.numeric(dta_graph1_bis$Salaries)
-# 
-# 
-# 
-# 
-# position <- reorder(dta_graph1_bis$Position[1:14], dta_graph1_bis$Salaries[1:14])
-# 
-# 
-# ggplot(dta_graph1_bis) +
-#   geom_bar(aes(x = reorder(Position, Salaries), y = Salaries, fill = Gender),
-#            stat = "identity",
-#            position = "identity") +
-#   geom_text(aes(x = Position, y = Salaries, label = paste0(Salaries * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", cex = 3.5,
-#             vjust = ifelse(dta_graph1_bis$Gender == 'Male', 1.2, 1.8)) +
-#   scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "K", accuracy = 1),
-#                      breaks = seq(0, 90000, 15000)) + 
-#   labs(title = "Yearly salary in different IT positions in 2019",
-#        subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.",
-#        caption = "Source : Viktor Shcherban and Ksenia Legostay, www.") +
-#   scale_fill_manual(values = c("#645A9F",'#005D67')) +
-#   theme(panel.background = element_rect(fill= "white", colour = "white"),
-#         axis.title.x = element_blank(),
-#         axis.title.y = element_text(family = "sans", size = 20, vjust = -3),
-#         axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 0.9, hjust = 0.9, face = "bold", color = "black"), #gras/taille/couleur à changer
-#         axis.text.y = element_text(family="sans",size=13, hjust = 1, margin = margin(40, 40, 40, 40), face = "bold", color = "black"),
-#         axis.ticks=element_blank(),
-#         legend.text = element_text(family = "sans", size = 13),
-#         legend.title = element_text(family = "sans", size = 15),
-#         legend.margin = margin(1,1,1,1, "cm"),
-#         plot.margin = margin(1,1,1,0.3, "cm"),
-#         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
-#         plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15)
-#         )
-
 ##graphique avec la DIFFERENCE de salaire
 
 ggplot(dta_difference) +
+  geom_rect(aes(xmin=0, xmax=50, ymin=0, ymax=50), fill="green", alpha=0.1, inherit.aes = FALSE) + 
   geom_bar(aes(x = reorder(Position, difference_salaire), y = difference_salaire), fill = '#005D67',
            stat = "identity",
            position = "identity") +
@@ -369,127 +313,41 @@ senior_age_h = sapply(list_age,function(i){
   return(length(which(dta_age$Seniority_level2=="Senior")))
 })
 
-classes_age = c("23-25","26-28", "29-31", "32-34", "35-37", "38-40", "41-43", 
-                "44-46", "47-49","50-54")
+# on fait les classes
 
 nb_senior = data.frame(list_age,senior_age_f,senior_age_h)
 
-nb_seniors_h_classes = c(sum(senior_age_h[1:3])/(sum(senior_age_h[1:3])+sum(senior_age_f[1:3])),
-                         sum(senior_age_h[4:6])/(sum(senior_age_h[4:6])+sum(senior_age_f[4:6])),
-                         sum(senior_age_h[7:9])/(sum(senior_age_h[7:9])+sum(senior_age_f[7:9])),
-                         sum(senior_age_h[10:12])/(sum(senior_age_h[10:12])+sum(senior_age_f[10:12])),
-                         sum(senior_age_h[13:15])/(sum(senior_age_h[13:15])+sum(senior_age_f[13:15])),
-                         sum(senior_age_h[16:18])/(sum(senior_age_h[16:18])+sum(senior_age_f[16:18])),
-                         sum(senior_age_h[19:21])/(sum(senior_age_h[19:21])+sum(senior_age_f[19:21])),
-                         sum(senior_age_h[22:24])/(sum(senior_age_h[22:24])+sum(senior_age_f[22:24])),
-                         sum(senior_age_h[25:27])/(sum(senior_age_h[25:27])+sum(senior_age_f[25:28])),
-                         sum(senior_age_h[28:30])/(sum(senior_age_h[28:30])+sum(senior_age_f[28:30])))
+senior_f_cum = c()
+senior_h_cum = c()
 
-nb_seniors_h_classes = c(sum(senior_age_h[1:3])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[4:6])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[7:9])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[10:12])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[13:15])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[16:18])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[19:21])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[22:24])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[25:27])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_h[28:30])/sum(senior_age_h+senior_age_f))
+for (i in 1:nrow(nb_senior)){
+  senior_f_cum = c(senior_f_cum,sum(nb_senior$senior_age_f[1:i]))
+  senior_h_cum = c(senior_h_cum,sum(nb_senior$senior_age_h[1:i]))
+}
+senior_f_cum = senior_f_cum/nrow(subset(dta,Gender == "Female"))
+senior_h_cum = senior_h_cum/nrow(subset(dta,Gender == "Male"))
+senior_dif_cum = senior_h_cum - senior_f_cum
+
+dta_graph3 = rbind(data.frame(list_age,"Gender" = c("Female"), "prop" = senior_f_cum),
+                     data.frame(list_age,"Gender" = c("Male"),"prop" = senior_h_cum))
+
+dta_graph3 = rbind(data.frame(list_age,"Gender" = c("Male"), "prop" = senior_h_cum),
+                   data.frame(list_age,"Gender" = c("Female"),"prop" = senior_f_cum))
 
 
-nb_seniors_f_classes = c(sum(senior_age_f[1:3])/(sum(senior_age_h[1:3])+sum(senior_age_f[1:3])),
-                         sum(senior_age_f[4:6])/(sum(senior_age_h[4:6])+sum(senior_age_f[4:6])),
-                         sum(senior_age_f[7:9])/(sum(senior_age_h[7:9])+sum(senior_age_f[7:9])),
-                         sum(senior_age_f[10:12])/(sum(senior_age_h[10:12])+sum(senior_age_f[10:12])),
-                         sum(senior_age_f[13:15])/(sum(senior_age_h[13:15])+sum(senior_age_f[13:15])),
-                         sum(senior_age_f[16:18])/(sum(senior_age_h[16:18])+sum(senior_age_f[16:18])),
-                         sum(senior_age_f[19:21])/(sum(senior_age_h[19:21])+sum(senior_age_f[19:21])),
-                         sum(senior_age_f[22:24])/(sum(senior_age_h[22:24])+sum(senior_age_f[22:24])),
-                         sum(senior_age_f[25:28])/(sum(senior_age_h[25:28])+sum(senior_age_f[25:28])),
-                         sum(senior_age_f[28:30])/(sum(senior_age_h[28:30])+sum(senior_age_f[28:30])))
+graph3 <- ggplot(data = dta_graph3,aes(x = list_age, 
+                                       y = prop, 
+                                       color = Gender,
+                                       group=Gender)) +
+  geom_line(linewidth=1.3) +
+  labs(title = "",
+       subtitle ="") +
+  ylab("Nombre cumulé de seniors rappoté au nombre total de personnes du même genre") +
+  xlab("Age (années)") +
+  scale_x_continuous(breaks=seq(20,54,2)) +
+  theme(panel.background = element_rect(fill = "white"),
+        axis.line = element_line(size = 1, colour = "black"),
+        panel.grid = element_line(color = "grey"))
 
-nb_seniors_f_classes = c(sum(senior_age_f[1:3])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[4:6])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[7:9])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[10:12])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[13:15])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[16:18])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[19:21])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[22:24])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[25:28])/sum(senior_age_h+senior_age_f),
-                         sum(senior_age_f[28:30])/sum(senior_age_h+senior_age_f))
-dta_graph_prop = data.frame(classes_age, nb_seniors_f_classes, nb_seniors_h_classes)
-
-dta_graph_prop = rbind(data.frame(classes_age,"Gender"= c("Female"), "prop"=nb_seniors_f_classes),
-                       data.frame(classes_age,"Gender" = c("Male"),"prop"=nb_seniors_h_classes))
-
-
-graph_prop <- ggplot(data= dta_graph_prop,
-                     aes(x=classes_age, 
-                         y=prop, 
-                         group=Gender, 
-                         color=Gender)) +
-  geom_line()
-
-prop_senior_f = (senior_age_f)/(senior_age_f+middle_age_f+junior_age_f+senior_age_h+middle_age_h+junior_age_h)
-prop_senior_f = sapply(prop_senior_f, function(i){
-  if(is.nan(i)){return (0)}
-    else{return(i)}
-})
-prop_senior_h = (senior_age_h)/(senior_age_f+middle_age_f+junior_age_f+senior_age_h+middle_age_h+junior_age_h)
-
-dta_graph_prop = data.frame(list_age, prop_senior_f, prop_senior_f)
-
-dta_graph_prop = rbind(data.frame(list_age,"Gender"= c("Female"), "prop"=prop_senior_f),
-                   data.frame(list_age,"Gender" = c("Male"),"prop"=prop_senior_h))
-
-
-graph_prop <- ggplot(data= dta_graph_prop,
-                     aes(x=list_age, 
-                         y=prop, 
-                         group=Gender, color=Gender)) +
-              geom_line()
-graph_prop
-
-dta_graph3 = data.frame(list_age,
-                        junior_age_f,
-                        middle_age_f,
-                        senior_age_f,
-                        junior_age_h,
-                        middle_age_h,
-                        senior_age_h)
-
-dta_graph3 = rbind(data.frame(list_age,"position"= c("Junior Women"), "count"=junior_age_f),
-                   data.frame(list_age,"position" = c("Middle Women"),"count"=middle_age_f),
-                   data.frame(list_age,"position" = c("Senior Women"),"count"=senior_age_f),
-                   data.frame(list_age,"position"= c("Junior Men"), "count"=junior_age_h),
-                   data.frame(list_age,"position" = c("Middle Men"),"count"=middle_age_h),
-                   data.frame(list_age,"position" = c("Senior Men"),"count"=senior_age_h))
-
-dta_graph3$count=ifelse(dta_graph3$position %in%c("Junior Men","Middle Men","Senior Men"),
-                        -1*dta_graph3$count,
-                        dta_graph3$count)
-
-dta_graph3$position = factor(dta_graph3$position,
-                             levels = c("Senior Women","Middle Women", "Junior Women",
-                                        "Senior Men","Middle Men", "Junior Men"))
-
-
-
-
- graph3 <- ggplot(dta_graph3) + 
-  geom_area(aes(x = list_age, y = count, fill = position),
-            stat = "identity") +
-  scale_y_continuous(labels = abs,breaks = seq(-60, 60, 5)) +
-  scale_x_continuous(breaks = seq(20, 54, 1)) +
-  scale_fill_manual(values=pal) +
-  xlab("Age of participants (years)") +
-  ylab("Number of participants")
-  #theme(panel.background=element_rect(fill="white"))
 graph3
-  
-# A régler : pb de blanc vers 41 ans chez les hommes
-# Mettre une grille pour que ce soit plus lisible
-# Changer le nom de la légende
-
 
