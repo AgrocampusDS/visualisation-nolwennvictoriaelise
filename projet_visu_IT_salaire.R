@@ -250,7 +250,6 @@ ggplot(dta_graph1) +
 ##graphique avec la DIFFERENCE de salaire
 
 ggplot(dta_difference) +
-  geom_rect(aes(xmin=0, xmax=50, ymin=0, ymax=50), fill="green", alpha=0.1, inherit.aes = FALSE) + 
   geom_bar(aes(x = reorder(Position, difference_salaire), y = difference_salaire), fill = '#005D67',
            stat = "identity",
            position = "identity") +
