@@ -7,50 +7,10 @@ library(maps)
 library(ggrepel)
 library(ggpubr)
 library(scatterpie)
-library(sf)
 library(colorspace)
-
-# A faire : ordonner les parties (j'ai l'impression que la partie de la carte
-# est mise avant la partie de l'importation de données, c'est bizarre non ?)
 
 # Palette de couleurs utilisée dans les graphiques
 pal = c(sequential_hcl(3, palette = "Purp"),sequential_hcl(3, palette = "Mint"))
-
-# Carte
-Germany <- map_data("world") %>% filter(region=="Germany")
-Cities <- world.cities %>% filter(country.etc=="Germany")
-villes= c("Berlin", "Bielefeld", "Brunswick", "Bremen", "Cologne", "Dusseldorf",
-               "Darmstadt","Dresden", "Frankfurt", "Freiburg", "Hamburg",
-               "Hanover", "Heidelberg","Ingolstadt", "Kaiserslautern",
-               "Karlsruhe", "Kassel", "Koblenz", "Leipzig", "Lingen",
-               "Magdeburg", "Munich", "Nuremberg", "Pforzheim", "Stuttgart", 
-               "Wurzburg","Walldorf", "Wolfsburg")
-
-Cities_allemagne <- Cities %>% filter(name %in% villes)
-Cities_allemagne <- Cities_allemagne[-10,]
-
-ggplot() + 
-  geom_polygon(data = Germany, aes(x=long, y = lat, group = group), 
-               fill="grey",color="black", alpha=0.5)+
-  geom_scatterpie(data = dta_graph, 
-                  aes( x=long, y = lat,group = name,r=log(sum)/8),
-                  alpha =.6, cols = c("Female","Male"), color = NA)+
-  scale_fill_manual(name = "Gender",values = c('#645A9F','#005D67'))+
-  geom_scatterpie_legend(radius = log(dta_graph$sum)/8, x=4, y=47.5, 
-                         labeller = function(x) round(exp(x*8),0))+
-  geom_text_repel( data= dta_graph , aes(x=long, y=lat, label=name), size=3, col = "black", family = "sans")+
-  geom_point( data=dta_graph , aes(x=long, y=lat), color="black", size=1)+
-  coord_map() + theme_void()+ 
-  labs(title = "People working IT positions in different cities in 2019",
-     subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.",
-     caption = "Source : Viktor Shcherban and Ksenia Legostay, www.")+
-  theme(
-    plot.title = element_text(color = "black", size = 15, hjust = 0.5),
-    plot.subtitle = element_text(color = "black", hjust = 0),
-    plot.caption = element_text(color = "black", face = "italic")
-  )
-
-
 
 #Importations des données
 
@@ -74,11 +34,11 @@ data2019$City = str_replace_all(data2019$City, pattern = "WÃ¼rzburg ", replace
 
 #Conserver que les villes allemandes
 villes = c("Berlin", "Bielefeld", "Brunswick", "Bremen", "Cologne", "Darmstadt",
-               "Dusseldorf", "Dresden", "Frankfurt", "Freiburg", "Hamburg",
-               "Hanover", "Heidelberg","Ingolstadt", "Kaiserslautern",
-               "Karlsruhe", "Kassel", "Koblenz", "Leipzig", "Lingen",
-               "Magdeburg", "Munich", "Nuremberg", "Pforzheim", "Stuttgart", 
-               "Wurzburg","Walldorf", "Wolfsburg")
+           "Dusseldorf", "Dresden", "Frankfurt", "Freiburg", "Hamburg",
+           "Hanover", "Heidelberg","Ingolstadt", "Kaiserslautern",
+           "Karlsruhe", "Kassel", "Koblenz", "Leipzig", "Lingen",
+           "Magdeburg", "Munich", "Nuremberg", "Pforzheim", "Stuttgart", 
+           "Wurzburg","Walldorf", "Wolfsburg")
 
 length(villes)
 
@@ -94,6 +54,38 @@ colnames(dta) <- c("Age","Gender","City",
                    "Years_of_experience",
                    "Yearly_salary")
 
+# Carte
+# dta carte
+
+dta$City = as.factor(dta$City)
+female = data.frame(table(dta$City[dta$Gender == "Female"]))
+male = data.frame(table(dta$City[dta$Gender == "Male"]))
+sum = female$Freq + male$Freq
+dta_graph = data.frame(Cities_allemagne, Female = female$Freq, Male = male$Freq, sum = sum)
+
+Cities_allemagne <- Cities %>% filter(name %in% villes)
+Cities_allemagne <- Cities_allemagne[-10,]
+
+ggplot() + 
+  geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
+               fill="grey",color="black", alpha = 0.5)+
+  geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
+  geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
+  geom_scatterpie(data = dta_graph, 
+                  aes(x = long, y = lat,group = name, r = log(sum)/8),
+                  alpha =.6, cols = c("Female","Male"), color = NA)+
+  scale_fill_manual(name = "Gender", values = c('#645A9F','#005D67'))+
+  geom_scatterpie_legend(radius = log(dta_graph$sum)/8, x = 4, y = 47.5, 
+                         labeller = function(x) round(exp(x*8), 0))+
+  theme_void()+ 
+  labs(title = "Repartition géographique des postes des participants de l'enquête",
+       caption = "Source : Viktor Shcherban and Ksenia Legostay")+
+  theme(
+    plot.title = element_text(color = "black", size = 12, hjust = 0.5),
+    plot.caption = element_text(color = "black", face = "italic", hjust = 1)
+  )
+
+# Grahique 2 et 3
 # Pré-traitement du jeu de données
 # Changement des noms des jobs
 
@@ -451,15 +443,5 @@ graph3
 # A régler : pb de blanc vers 41 ans chez les hommes
 # Mettre une grille pour que ce soit plus lisible
 # Changer le nom de la légende
-
-#dta pies
-
-dta$City = as.factor(dta$City)
-
-female = data.frame(table(dta$City[dta$Gender == "Female"]))
-male = data.frame(table(dta$City[dta$Gender == "Male"]))
-sum = female$Freq + male$Freq
-dta_graph = data.frame(Cities_allemagne, Female = female$Freq, Male = male$Freq, sum = sum)
-
 
 
