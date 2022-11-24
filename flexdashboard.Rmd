@@ -48,7 +48,7 @@ library(scales)
 library(grid)
 
 #importation des données
-data2019 <- read.csv("~/GitHub/visualisation-nolwennvictoriaelise/archive/T Salary Survey EU 2019.csv", 
+data2019 <- read.csv("archive/T Salary Survey EU 2019.csv", 
                      header = TRUE, 
                      sep = ";", 
                      encoding = "latin1")
