@@ -14,7 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Generate slides
-        run: Rscript -e "rmarkdown::render('flexdashboard.Rmd', output_dir = 'build')"
+        run: |
+          Rscript -e "install.packages(c('ggrepel', 'scatterpie', 'colorspace', 'scales', 'grid'))"
+          Rscript -e "rmarkdown::render('flexdashboard.Rmd', output_dir = 'build')"
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3
         with:
