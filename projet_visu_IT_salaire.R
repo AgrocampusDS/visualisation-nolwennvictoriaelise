@@ -172,6 +172,7 @@ dta_difference <- data.frame(cbind(unique(nvelles_positions)), round_any(differe
 colnames(dta_difference)[2] <- "difference_salaire"
 colnames(dta_difference)[1] <- "Position"
 dta_difference <- dta_difference[-which(dta_difference$Position == "DevOps"),] 
+dta_difference$Position[which(dta_difference$Position == "QA")] <- "Quality Assurance"
 #on enlève la ligne du métier correspondant à DevOps car pas de données pour les femmes
 
 # salaire moyen des hommes et des femmes pour tous métiers confondus
@@ -249,20 +250,20 @@ ggplot(dta_graph1) +
 ##graphique avec la DIFFERENCE de salaire
 
 ggplot(dta_difference) +
+  geom_rect(aes(xmin=0, xmax=50, ymin=0, ymax=50), fill="green", alpha=0.1, inherit.aes = FALSE) + 
   geom_bar(aes(x = reorder(Position, difference_salaire), y = difference_salaire), fill = '#005D67',
            stat = "identity",
            position = "identity") +
-  geom_text(aes(x = Position, y = difference_salaire, label = paste0(difference_salaire * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", 
-            cex = 4, vjust = 1.4) +
   scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "K", accuracy = 1),
                      breaks = seq(0, 50000, 5000)) +
   ylab("Salaries difference") +
   labs(title = "Yearly salary in different IT positions in 2019",
-       subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.",
-       caption = "Source : Viktor Shcherban and Ksenia Legostay, www.") +
+       subtitle ="From a salary survey conducted among German IT specialists. This year 825 respondents participated in the survey.") +
   scale_fill_manual(values = c('#005D67')) +
-  geom_hline(yintercept = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2], color = 'red', linewidth = 2) +
-  annotate("text", x = 5, y = 300, vjust = -1, label = "Average wage difference between men and women") +
+  geom_hline(yintercept = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2] + 500, color = 'red', linewidth = 1, ) +
+  geom_text( x = 4, y = salaire_moy_hommes_femmes[1] - salaire_moy_hommes_femmes[2], vjust = -1, color = "red", label = "Average wage difference between men and women") +
+  geom_text(aes(x = Position, y = difference_salaire, label = paste0(difference_salaire * 1e-3, "K")), family = "sans", color = "white", fontface = "bold", 
+            cex = 4.5, vjust = 1.4) +
   theme(panel.background = element_rect(fill= "white", colour = "white"),
         axis.title.x = element_blank(),
         axis.title.y = element_text(family = "sans", size = 20, vjust = -3),
@@ -274,10 +275,7 @@ ggplot(dta_difference) +
         legend.margin = margin(1,1,1,1, "cm"),
         plot.margin = margin(1,1,1,0.3, "cm"),
         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
-        plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15)
-        
-        
-  )
+        plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15))
 
 
 #en blanc/ et gras données salaires des bar
