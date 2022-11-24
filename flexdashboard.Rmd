@@ -3,21 +3,19 @@ title: "Les inégalités de genre dans la profession informatique"
 author: "Elise Hodbert, Nolwenn Paquet, Victoria Bancel"
 output: 
   flexdashboard::flex_dashboard:
-    theme: bootstrap
+    theme: flatly
     orientation: columns
     vertical_layout: fill
     navbar:
-      - { title: "Moodle", href: "https://tice.agrocampus-ouest.fr/course/view.php?id=6726", align: left }
-      - { icon: "fa-twitter", href: "https://twitter.com/marie_etienne", align: right }
-      - { icon: "fa-linkedin", href: "https://www.linkedin.com/in/marie-etienne-818a7115/", align: right }
+      - { title: "Lien", href: "https://www.asdcode.de/2020/01/it-salary-survey-december-2019.html", align: left }
 params:
   setup_path: ../resources/
 ---
 
 <style>                     
 .navbar {
-  background-color:#46ACC8;
-  border-color:#46ACC8;
+  background-color:#005D67;
+  border-color:#64A79A;
 }
 .navbar-brand {
 color:black!important;
@@ -46,6 +44,7 @@ library(dplyr)
 library(plyr)
 library(scales)
 library(grid)
+library(ggfun)
 
 #importation des données
 data2019 <- read.csv("archive/T Salary Survey EU 2019.csv", 
@@ -91,19 +90,35 @@ colnames(dta) <- c("Age", "Gender", "City",
 
 ```
 
-Column {.tabset .tabset-fade}
+
+Présentation de l'étude
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+
+### Présentation des données (après prétraitement)
+
+
+
+```{r}
+summary(dta)
+```
+
+
+Row
 -----------------------------------------------------------------------
 
 ### Présentation de l'étude
-
-Le [lien](https://www.asdcode.de/2020/01/it-salary-survey-december-2019.html) renvoie à l'étude sur laquelle se base notre exposé.
 
 L'étude provient d'une enquête menée auprès de personnes travaillant dans le domaine de l'IT. Cette enquête a été menée en Allemagne, en 2019. 826 personnes y ont participé, dont 129 femmes et 687 hommes.
 
 Dans notre exposé, nous nous interessons plus particuilièrement aux ingéalités qui existent entre les hommes et les femmmes, dans ce domaine de l'IT. Nous nous intéressons plus particuilièrement à trois inégalités : nombre de postes pourvus, salaires et positions au sein de l'entreprise.
 
 
-### Nombre de postes pourvus
+Nombre de postes pourvus
+=======================================================================
 
 ```{r  ggplotly, echo = FALSE,  eval = TRUE,  message = FALSE, warning=FALSE}
 dta$City = as.factor(dta$City)
@@ -119,7 +134,7 @@ sum = female$Freq + male$Freq
 dta_graph = data.frame(Cities_allemagne, Femme = female$Freq, Homme = male$Freq, sum = sum)
 carte = ggplot() + 
   geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
-               fill="grey",color="black", alpha = 0.5)+
+               fill="grey",color="black", alpha = 0.4)+
   geom_scatterpie(data = dta_graph, 
                 aes(x = long, y = lat,group = name, r = log(sum)/8),
                 alpha =.5, cols = c("Femme","Homme"), color = "black")+
@@ -140,9 +155,9 @@ carte
 
 
 
-### Salaires
-
-```{r, include = FALSE}
+Salaires
+=======================================================================
+```{r, include = FALSE,}
 dta$Position[242] = "NA" # la personne 242 n'a pas renseigné son job
 dta$Position = as.factor(dta$Position)
 
@@ -244,7 +259,7 @@ format(dta_graph1$Salaries, scientific = TRUE, )
 ```
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, eval = TRUE,  message = FALSE, warning=FALSE, fig.width= 15, fig.height = 12}
 ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = difference_salaire, fill = )) +
   geom_bar(aes(fill = 'Surplus salarial gagné\npar les hommes (en milliers d\'euros)'), 
            stat = "identity",
@@ -261,7 +276,7 @@ ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = differe
         axis.line.y = element_line(linewidth = 1),
         axis.title.x = element_blank(),
         axis.title.y = element_text(family = "sans", size = 20, vjust = -3),
-        axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 1, hjust = 1, face = "bold", color = "black"), #gras/taille/couleur à changer
+        axis.text.x = element_text(angle= 60,family="sans",size=12, vjust = 1, hjust = 1, face = "bold", color = "black"), 
         axis.text.y = element_text(family="sans",size=13, hjust = 1, margin = margin(40, 40, 40, 40), face = "bold", color = "black"),
         axis.ticks=element_blank(),
         legend.text = element_text(family = "sans", size = 13),
@@ -269,15 +284,15 @@ ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = differe
         legend.title.align = 0.3,
         legend.margin = margin(0,1,0,0, "cm"),
         legend.position = c(0.6,0.8),
-        plot.margin = margin(1,2,0.5,0.3, "cm"),
+        plot.margin = margin(2,2,0.5,0.3, "cm"),
         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
         plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15))
 
 ```
 
 
-### Positions au sein de l'entreprise
-
+Positions au sein de l'entreprise
+=======================================================================
 ```{r, include = FALSE}
 dta_graph1_female <- dta_graph1[which(dta_graph1$Gender == "Female"),]
 tot_moy_female <- c()
