@@ -256,7 +256,8 @@ ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = differe
 
 ###### Graph 3
 
-# on garde 3 classes de seniority : junior, middle et senior
+# Pré-traitement des grades professionnels
+# On garde 3 niveaux : Junior, Middle et Senior
 
 dta$Seniority_level = as.factor(dta$Seniority_level)
 summary(dta$Seniority_level)
@@ -279,41 +280,19 @@ Seniority_level2 = unlist(lapply(dta$Seniority_level,function(i){
 Seniority_level2
 dta$Seniority_level2 = Seniority_level2
 
-# on calcule le nombre de personnes par genre, age et par catégorie de seniority
+# On compte le nombre de personnes ayant un grade de Senior 
 
 list_age = sort(unique(dta$Age))
-
-junior_age_f = sapply(list_age,function(i){
-  dta_age = subset(dta,Age == i & Gender == "Female")
-  return(length(which(dta_age$Seniority_level2 == "Junior")))
-})
-
-middle_age_f = sapply(list_age,function(i){
-  dta_age = subset(dta,Age == i & Gender == "Female")
-  return(length(which(dta_age$Seniority_level2=="Middle")))
-})
 
 senior_age_f = sapply(list_age,function(i){
   dta_age = subset(dta,Age==i & Gender == "Female")
   return(length(which(dta_age$Seniority_level2=="Senior")))
 })
 
-junior_age_h = sapply(list_age,function(i){
-  dta_age = subset(dta,Age == i & Gender == "Male")
-  return(length(which(dta_age$Seniority_level2 == "Junior")))
-})
-
-middle_age_h = sapply(list_age,function(i){
-  dta_age = subset(dta,Age == i & Gender == "Male")
-  return(length(which(dta_age$Seniority_level2=="Middle")))
-})
-
 senior_age_h = sapply(list_age,function(i){
   dta_age = subset(dta,Age==i & Gender == "Male")
   return(length(which(dta_age$Seniority_level2=="Senior")))
 })
-
-# on fait les classes
 
 nb_senior = data.frame(list_age,senior_age_f,senior_age_h)
 
@@ -327,13 +306,9 @@ for (i in 1:nrow(nb_senior)){
 
 senior_f_cum = senior_f_cum/nrow(subset(dta,Gender == "Female"))
 senior_h_cum = senior_h_cum/nrow(subset(dta,Gender == "Male"))
-senior_dif_cum = senior_h_cum - senior_f_cum
 
 dta_graph3 = rbind(data.frame(list_age,"Genre" = c("Femme"), "prop" = senior_f_cum),
                      data.frame(list_age,"Genre" = c("Homme"),"prop" = senior_h_cum))
-
-dta_graph3 = rbind(data.frame(list_age,"Genre" = c("Homme"), "prop" = senior_h_cum),
-                   data.frame(list_age,"Genre" = c("Femme"),"prop" = senior_f_cum))
 
 
 graph3 <- ggplot(data = dta_graph3,aes(x = list_age, 
@@ -348,8 +323,8 @@ graph3 <- ggplot(data = dta_graph3,aes(x = list_age,
   scale_x_continuous(breaks=seq(20,54,2)) +
   scale_y_continuous(labels = label_number(scale = 100, suffix = "%", accuracy = 1),
                      breaks = seq(0, 1, 0.05)) +
-  annotate("text",x=53,y=0.31,label="Total : 29.5%") +
-  annotate("text",x=53,y=0.55,label="Total : 56.8%") +
+  annotate("text",x=53,y=0.31,label="29.5%") +
+  annotate("text",x=53,y=0.55,label="56.8%") +
   theme(panel.background = element_rect(fill = "white"),
         axis.line = element_line(size = 1, colour = "black"),
         panel.grid = element_line(color = "grey"),
@@ -365,3 +340,38 @@ graph3 <- ggplot(data = dta_graph3,aes(x = list_age,
         axis.ticks=element_blank(),
         legend.key = element_rect(fill="white"))
 graph3
+
+# Notre jeu de données contenait, pour chaque participant,
+# son genre, son âge, et son grade professionnel 
+# (Junior, Middle ou Senior).
+# Nous avons calculé le nombre de personnes ayant un poste de Senior 
+# pour chaque âge, pour les hommes et les femmes séparément
+# Puis nous avons divisé ce nombre par le nombre d'hommes et de 
+# femmes au total dans notre étude, respectivement.
+# Ce qui nous a donné, pour chaque âge, la proportion de femmes 
+# ayant un poste senior par rapport à l'ensemble de la population
+# de femmes. Et même chose pour les hommes.
+# Nous avons décidé de montrer l'évolution de cette proportion cumulée.
+
+# Ainsi, la courbe violette montre, pour chaque âge, la proportion,
+# de femme ayant cet âge ou étant plus jeune, qui a un grade 
+# professionnel de Senior.
+# De même, la courbe bleue montre ... pour les hommes.
+# Ainsi, par exemple, 25% des femmes de 40 ans ou moins ont un grade
+# de Senior, tandis que 50% des hommes de 40 ans ou moins 
+# ont un grade de Senior.
+
+# On remarque qu'une proportion plus faible de femmes accèdent
+# au grade de Senior.
+# En effet, en prenant la totalité des participants, 
+# 29,5% des femmes sont senior, tandis que 56.8% des hommes sont senior
+
+# D'autre part, on voit que la pente des deux courbes est la plus
+# élevée pour des âges compris entre 30 et 40 ans, ce qui signifie 
+# que c'est l'âge auquel les travailleurs accèdent le plus
+# au grade de Senior.
+# Cependant, les hommes semblent accéder au grade de senior plus tôt
+# que les femmes.
+
+# Conclusion
+#
