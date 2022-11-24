@@ -1,4 +1,4 @@
-#Carte
+#Packages
 library(ggplot2)
 library("rnaturalearth")
 library("rnaturalearthdata")
@@ -57,7 +57,7 @@ colnames(dta) <- c("Age","Gender","City",
                    "Years_of_experience",
                    "Yearly_salary")
 
-# Carte
+###### Carte
 # dta carte
 
 dta$City = as.factor(dta$City)
@@ -68,6 +68,8 @@ dta_graph = data.frame(Cities_allemagne, Female = female$Freq, Male = male$Freq,
 
 Cities_allemagne <- Cities %>% filter(name %in% villes)
 Cities_allemagne <- Cities_allemagne[-10,]
+
+#Carte
 
 ggplot() + 
   geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
@@ -88,7 +90,7 @@ ggplot() +
     plot.caption = element_text(color = "black", face = "italic", hjust = 1)
   )
 
-# Grahique 2 et 3
+##### Grahique 2 et 3
 # Pré-traitement du jeu de données
 # Changement des noms des jobs
 
@@ -123,7 +125,7 @@ for (i in 1:nrow(dta)){
 
 dta <- data.frame(dta,Position2)
 
-####### Graph 1
+###### Graph 2
 
 # On crée un jeu de données contenant le nombre de personnes par position et par genre
 
@@ -192,7 +194,8 @@ library(scales)
 dta_graph1$Salaries <- round_any(dta_graph1$Salaries, 5000)
 format(dta_graph1$Salaries, scientific = TRUE, )
 
-##graphique avec la DIFFERENCE de salaire
+
+##### Graph2 : la DIFFERENCE de salaire
 
 
 ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = difference_salaire, fill = )) +
@@ -227,36 +230,27 @@ ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = differe
 
 
 
-#en blanc/ et gras données salaires des bar
-#inverser légende gender male/female
-#police sans
-#txt en noir
-#Titre, sous titre centré
-#ajouter axe ordonnées
-#other tout à droite
-#trier salaire en fonction des femmes
-
-##ajout d'une colonne moyenne salaire dans dta_graph1
-
-library(tidyr)
-library(dplyr)
-
-dta_graph1_female <- dta_graph1[which(dta_graph1$Gender == "Female"),]
-tot_moy_female <- c()
-for (position in dta_graph1_female$Position2){
-  #moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Female') %in% which(dta$Position2 == position))])
-  moy <- subset(dta,Gender=="Female" & Position2 == position)$Yearly_salary
-  moy <- mean(moy, na.rm = TRUE)
-  tot_moy_female <- c(tot_moy_female, moy)
-}
-
-dta_graph1_male <- dta_graph1[which(dta_graph1$Gender == "Male"),]
-tot_moy_male <- c()
-for (position in dta_graph1_male$Position){
-  moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Male') %in% (which(dta$Position2 == position)))])
-  moy <- mean(moy, na.rm = TRUE)
-  tot_moy_male <- c(tot_moy_male, moy)
-}
+# ##ajout d'une colonne moyenne salaire dans dta_graph1
+# 
+# library(tidyr)
+# library(dplyr)
+# 
+# dta_graph1_female <- dta_graph1[which(dta_graph1$Gender == "Female"),]
+# tot_moy_female <- c()
+# for (position in dta_graph1_female$Position2){
+#   #moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Female') %in% which(dta$Position2 == position))])
+#   moy <- subset(dta,Gender=="Female" & Position2 == position)$Yearly_salary
+#   moy <- mean(moy, na.rm = TRUE)
+#   tot_moy_female <- c(tot_moy_female, moy)
+# }
+# 
+# dta_graph1_male <- dta_graph1[which(dta_graph1$Gender == "Male"),]
+# tot_moy_male <- c()
+# for (position in dta_graph1_male$Position){
+#   moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Male') %in% (which(dta$Position2 == position)))])
+#   moy <- mean(moy, na.rm = TRUE)
+#   tot_moy_male <- c(tot_moy_male, moy)
+# }
 
 
 
