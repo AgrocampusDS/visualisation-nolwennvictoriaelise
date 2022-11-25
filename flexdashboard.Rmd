@@ -114,7 +114,8 @@ Row
 
 L'étude provient d'une enquête menée auprès de personnes travaillant dans le domaine de l'IT. Cette enquête a été menée en Allemagne, en 2019. 826 personnes y ont participé, dont 129 femmes et 687 hommes.
 
-Dans notre exposé, nous nous interessons plus particuilièrement aux ingéalités qui existent entre les hommes et les femmmes, dans ce domaine de l'IT. Nous nous intéressons plus particuilièrement à trois inégalités : nombre de postes pourvus, salaires et positions au sein de l'entreprise.
+Dans notre exposé, nous nous interessons plus particulièrement aux inégalités qui existent entre les hommes et les femmmes, dans le domaine de l'IT. 
+Ici, nous verrons s'il existe des inégalités au niveau : du nombre de postes pourvus, du salaires et de la position au sein de l'entreprise.
 
 Source : Viktor Shcherban and Ksenia Legostay
 
