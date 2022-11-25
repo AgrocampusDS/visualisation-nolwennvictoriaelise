@@ -156,9 +156,9 @@ carte = ggplot() +
   geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   theme_void()+ 
   #affichage du titre
-  labs(title = "Repartition géographique des postes des participants de l'enquête")+
+  labs(title = "Repartition géographique des hommes et des femmes \n travaillant dans le domaine de l'IT")+
   theme(
-    plot.title = element_text(color = "black", size = 12, hjust=0,face="bold"))
+    plot.title = element_text(color = "black", size = 12, hjust=0.5,face="bold"))
 carte
 ```
 
