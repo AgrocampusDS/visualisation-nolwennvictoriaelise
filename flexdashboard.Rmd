@@ -26,6 +26,7 @@ color:black!important;
 
 
 ```{r setup, include=FALSE}
+#Importation des packages
 library(flexdashboard)
 library(tidyverse)
 library(ggplot2)
@@ -45,6 +46,7 @@ library(plyr)
 library(scales)
 library(grid)
 library(ggfun)
+library(stringr)
 
 #importation des données
 data2019 <- read.csv("archive/T Salary Survey EU 2019.csv", 
@@ -54,7 +56,9 @@ data2019 <- read.csv("archive/T Salary Survey EU 2019.csv",
 data2019$City <- as.factor(data2019$City)
 data2019$Gender <- as.factor(data2019$Gender)
 
-library(stringr)
+#Mise au propre des données
+
+#Mise au propre des noms des villes
 data2019$City = str_replace_all(data2019$City, pattern = "Braunschweig", replacement = "Brunswick")
 data2019$City = str_replace_all(data2019$City, pattern = "DÃ¼sseldorf", replacement = "Dusseldorf")
 data2019$City = str_replace_all(data2019$City, pattern = "Hannover", replacement = "Hanover")
@@ -69,24 +73,21 @@ villes= c("Berlin", "Bielefeld", "Brunswick", "Bremen", "Cologne", "Dusseldorf",
                "Magdeburg", "Munich", "Nuremberg", "Pforzheim", "Stuttgart", 
                "Wurzburg","Walldorf", "Wolfsburg")
 
-data2019_Allemagne <- subset(data2019, City %in% villes) # on conserve seulement les villes en allemagne
+#On ne conserve que les villes allemandes
+data2019_Allemagne <- subset(data2019, City %in% villes) 
 
-dta <- subset(data2019_Allemagne, select=c("Age","Gender","City",
+#On ne conserve que les variables d'interêt et on les renomme
+dta <- subset(data2019_Allemagne, select=c("Age", "Gender", "City",
                                            "Seniority.level",
                                            "Position..without.seniority.",
                                            "Years.of.experience",
                                  "Yearly.brutto.salary..without.bonus.and.stocks."))
-# on conserve seulement les variables d'interêt
 
 colnames(dta) <- c("Age", "Gender", "City",
                    "Seniority_level",
                    "Position",
                    "Years_of_experience",
                    "Yearly_salary")
-
-
-
-
 
 ```
 
@@ -114,8 +115,12 @@ Row
 
 L'étude provient d'une enquête menée auprès de personnes travaillant dans le domaine de l'IT. Cette enquête a été menée en Allemagne, en 2019. 826 personnes y ont participé, dont 129 femmes et 687 hommes.
 
+<<<<<<< Updated upstream
 Dans notre exposé, nous nous interessons plus particulièrement aux inégalités qui existent entre les hommes et les femmmes, dans le domaine de l'IT. 
 Ici, nous verrons s'il existe des inégalités au niveau : du nombre de postes pourvus, du salaires et de la position au sein de l'entreprise.
+=======
+Dans notre exposé, nous nous interessons plus particuilièrement aux ingéalités qui existent entre les hommes et les femmmes, dans ce domaine de l'IT. Nous nous intéressons plus particuilièrement à trois inégalités : nombre de postes pourvus, salaire et grade professionnel au sein de l'entreprise.
+>>>>>>> Stashed changes
 
 Source : Viktor Shcherban and Ksenia Legostay
 
@@ -124,8 +129,8 @@ Nombre de postes pourvus
 =======================================================================
 
 ```{r  ggplotly, echo = FALSE,  eval = TRUE,  message = FALSE, warning=FALSE}
+# dta carte
 dta$City = as.factor(dta$City)
-
 Germany <- map_data("world") %>% filter(region == "Germany")
 Cities <- world.cities %>% filter(country.etc == "Germany")
 Cities_allemagne <- Cities %>% filter(name %in% villes)
@@ -135,23 +140,28 @@ female = data.frame(table(dta$City[dta$Gender == "Female"]))
 male = data.frame(table(dta$City[dta$Gender == "Male"]))
 sum = female$Freq + male$Freq
 dta_graph = data.frame(Cities_allemagne, Femme = female$Freq, Homme = male$Freq, sum = sum)
+
+#Carte
+
 carte = ggplot() + 
+  #affichage de la carte de l'Allemagne
   geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
                fill="grey",color="black", alpha = 0.4)+
+  #affichage des camemberts
   geom_scatterpie(data = dta_graph, 
                 aes(x = long, y = lat,group = name, r = log(sum)/8),
                 alpha =.5, cols = c("Femme","Homme"), color = "black")+
                 scale_fill_manual(name = "Genre", values = c('#645A9F','#005D67'))+
   geom_scatterpie_legend(radius = log(dta_graph$sum)/8, x = 4, y = 47.5, 
                          labeller = function(x) round(exp(x*8), 0))+
+  #affichage du noms des villes et de leur point
   geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
   geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   theme_void()+ 
+  #affichage du titre
   labs(title = "Repartition géographique des postes des participants de l'enquête")+
   theme(
-    plot.title = element_text(color = "black", size = 12, hjust=0,face="bold"),
-    plot.caption = element_text(color = "black", face = "italic", hjust = 1)
-  )
+    plot.title = element_text(color = "black", size = 12, hjust=0,face="bold"))
 carte
 ```
 
@@ -296,27 +306,6 @@ ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = differe
 
 Grades professionnels selon l'âge
 ======================================================================
-
-```{r, include = FALSE}
-# dta_graph1_female <- dta_graph1[which(dta_graph1$Gender == "Female"),]
-# tot_moy_female <- c()
-# for (position in dta_graph1_female$Position2){
-#   #moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Female') %in% which(dta$Position2 == position))])
-#   moy <- subset(dta,Gender=="Female" & Position2 == position)$Yearly_salary
-#   moy <- mean(moy, na.rm = TRUE)
-#   tot_moy_female <- c(tot_moy_female, moy)
-# }
-# 
-# dta_graph1_male <- dta_graph1[which(dta_graph1$Gender == "Male"),]
-# tot_moy_male <- c()
-# for (position in dta_graph1_male$Position){
-#   moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Male') %in% (which(dta$Position2 == position)))])
-#   moy <- mean(moy, na.rm = TRUE)
-#   tot_moy_male <- c(tot_moy_male, moy)
-# }
-
-```
-
 
 ```{r, include = FALSE}
 # on garde 3 classes de seniority : junior, middle et senior

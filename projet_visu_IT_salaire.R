@@ -1,4 +1,4 @@
-#Packages
+### Packages
 library(ggplot2)
 library("rnaturalearth")
 library("rnaturalearthdata")
@@ -10,13 +10,13 @@ library(scatterpie)
 library(colorspace)
 library(grid)
 library(plyr)
+library(stringr)
+library(scales)
 
-
-# Palette de couleurs utilisée dans les graphiques
+### Palette de couleurs utilisée dans les graphiques
 pal = c(sequential_hcl(3, palette = "Purp"),sequential_hcl(3, palette = "Mint"))
 
-#Importations des données
-
+### Importations des données
 data2019 <- read.csv("~/GitHub/visualisation-nolwennvictoriaelise/archive/T Salary Survey EU 2019.csv", 
                      header = TRUE, 
                      sep = ";", 
@@ -24,10 +24,9 @@ data2019 <- read.csv("~/GitHub/visualisation-nolwennvictoriaelise/archive/T Sala
 data2019$City <- as.factor(data2019$City)
 data2019$Gender <- as.factor(data2019$Gender)
 
-#Mise au propre du jeu de données
-#Mise au propre des noms des villes
+### Mise au propre du jeu de données
 
-library(stringr)
+#Mise au propre des noms des villes
 data2019$City = str_replace_all(data2019$City, pattern = "Braunschweig", replacement = "Brunswick")
 data2019$City = str_replace_all(data2019$City, pattern = "DÃ¼sseldorf", replacement = "Dusseldorf")
 data2019$City = str_replace_all(data2019$City, pattern = "Hannover", replacement = "Hanover")
@@ -35,7 +34,7 @@ data2019$City = str_replace_all(data2019$City, pattern = "Kassel ", replacement 
 data2019$City = str_replace_all(data2019$City, pattern = "Marburg", replacement = "Magdeburg")
 data2019$City = str_replace_all(data2019$City, pattern = "WÃ¼rzburg ", replacement = "Wurzburg")
 
-#Conserver que les villes allemandes
+#On ne conserve que les villes allemandes
 villes = c("Berlin", "Bielefeld", "Brunswick", "Bremen", "Cologne", "Darmstadt",
            "Dusseldorf", "Dresden", "Frankfurt", "Freiburg", "Hamburg",
            "Hanover", "Heidelberg","Ingolstadt", "Kaiserslautern",
@@ -44,20 +43,21 @@ villes = c("Berlin", "Bielefeld", "Brunswick", "Bremen", "Cologne", "Darmstadt",
            "Wurzburg","Walldorf", "Wolfsburg")
 
 length(villes)
+data2019_Allemagne <- subset(data2019, City %in% villes)
 
-data2019_Allemagne <- subset(data2019, City %in% villes) # on conserve seulement les villes en allemagne
-dta <- subset(data2019_Allemagne, select=c("Age","Gender","City",
+#On ne conserve que les variables d'interêt et on les renomme
+dta <- subset(data2019_Allemagne, select=c("Age", "Gender", "City",
                                            "Seniority.level",
                                            "Position..without.seniority.",
                                            "Years.of.experience",
                                            "Yearly.brutto.salary..without.bonus.and.stocks."))
-colnames(dta) <- c("Age","Gender","City",
+colnames(dta) <- c("Age", "Gender", "City",
                    "Seniority_level",
                    "Position",
                    "Years_of_experience",
                    "Yearly_salary")
 
-###### Carte
+### Carte
 # dta carte
 
 dta$City = as.factor(dta$City)
@@ -72,26 +72,28 @@ Cities_allemagne <- Cities_allemagne[-10,]
 #Carte
 
 ggplot() + 
+  #affichage de la carte de l'Allemagne
   geom_polygon(data = Germany, aes(x = long, y = lat, group = group), 
                fill="grey",color="black", alpha = 0.5)+
+  #affichage des camemberts
   geom_scatterpie(data = dta_graph, 
                   aes(x = long, y = lat,group = name, r = log(sum)/8),
                   alpha =.5, cols = c("Female","Male"), color = "Black")+
   scale_fill_manual(name = "Gender", values = c('#645A9F','#005D67'))+
   geom_scatterpie_legend(radius = log(dta_graph$sum)/8, x = 4, y = 47.5, 
                          labeller = function(x) round(exp(x*8), 0))+
+  #affichage du noms des villes et de leur point
   geom_text_repel(data = dta_graph, aes(x = long, y = lat, label = name), size = 3,   col = "black", family = "sans")+
   geom_point(data=dta_graph, aes(x = long, y = lat), color = "black", size = 1)+
   theme_void()+ 
-  labs(title = "Repartition géographique des postes des participants de l'enquête",
-       caption = "Source : Viktor Shcherban and Ksenia Legostay")+
+  #affichage du titre
+  labs(title = "Repartition géographique des postes des participants de l'enquête")+
   theme(
-    plot.title = element_text(color = "black", size = 12, hjust = 0.5),
-    plot.caption = element_text(color = "black", face = "italic", hjust = 1)
+    plot.title = element_text(color = "black", size = 12, hjust = 0.5)
   )
 
-##### Grahique 2 et 3
-# Pré-traitement du jeu de données
+
+### Pré-traitement du jeu de données pour les graph 2 et 3
 # Changement des noms des jobs
 
 dta$Position[242] = "NA" # la personne 242 n'a pas renseigné son job
@@ -125,7 +127,7 @@ for (i in 1:nrow(dta)){
 
 dta <- data.frame(dta,Position2)
 
-###### Graph 2
+### Graph 2
 
 # On crée un jeu de données contenant le nombre de personnes par position et par genre
 
@@ -167,7 +169,6 @@ dta_graph1$Position2 <- ifelse(dta_graph1$Gender == "Male",
 difference_salaire <- sapply(unique(nvelles_positions),function(i){
   dta_hommes = subset(dta, Gender == "Male" & Position2 == i)
   dta_femmes = subset(dta, Gender == "Female" & Position2 == i)
-  #diff <- dta_hommes$Yearly_salary[which(dta_hommes$Position2 == i)] - dta_femmes$Yearly_salary[which(dta_hommes$Position2 == i)]
   diff <- mean(dta_hommes$Yearly_salary, na.rm = TRUE) - mean(dta_femmes$Yearly_salary, na.rm = TRUE)
   return(diff)
 })
@@ -175,9 +176,10 @@ difference_salaire <- sapply(unique(nvelles_positions),function(i){
 dta_difference <- data.frame(cbind(unique(nvelles_positions)), round_any(difference_salaire, 500))
 colnames(dta_difference)[2] <- "difference_salaire"
 colnames(dta_difference)[1] <- "Position"
+
+#on enlève la ligne du métier correspondant à DevOps car pas de données pour les femmes
 dta_difference <- dta_difference[-which(dta_difference$Position == "DevOps"),] 
 dta_difference$Position[which(dta_difference$Position == "QA")] <- "Quality Assurance"
-#on enlève la ligne du métier correspondant à DevOps car pas de données pour les femmes
 
 # salaire moyen des hommes et des femmes pour tous métiers confondus
 salaire_moy_hommes_femmes <- sapply(unique(dta$Gender), function(i){
@@ -186,17 +188,12 @@ salaire_moy_hommes_femmes <- sapply(unique(dta$Gender), function(i){
   return(moy_genre)
 })
 
-
-
 #on arrondi les salaires aux 5000 euros près
-library(plyr)
-library(scales)
 dta_graph1$Salaries <- round_any(dta_graph1$Salaries, 5000)
 format(dta_graph1$Salaries, scientific = TRUE, )
 
 
-##### Graph2 : la DIFFERENCE de salaire
-
+# Graph2 : la DIFFERENCE de salaire
 
 ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = difference_salaire, fill = )) +
   geom_bar(aes(fill = 'Surplus salarial gagné\npar les hommes (en milliers d\'euros)'), 
@@ -228,33 +225,7 @@ ggplot(dta_difference, aes(x = reorder(Position, difference_salaire),y = differe
         plot.title = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", face = "bold", size = 25),
         plot.subtitle = element_text(hjust = 0.5, vjust = 6, family = "sans", color = "black", size = 15))
 
-
-
-# ##ajout d'une colonne moyenne salaire dans dta_graph1
-# 
-# library(tidyr)
-# library(dplyr)
-# 
-# dta_graph1_female <- dta_graph1[which(dta_graph1$Gender == "Female"),]
-# tot_moy_female <- c()
-# for (position in dta_graph1_female$Position2){
-#   #moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Female') %in% which(dta$Position2 == position))])
-#   moy <- subset(dta,Gender=="Female" & Position2 == position)$Yearly_salary
-#   moy <- mean(moy, na.rm = TRUE)
-#   tot_moy_female <- c(tot_moy_female, moy)
-# }
-# 
-# dta_graph1_male <- dta_graph1[which(dta_graph1$Gender == "Male"),]
-# tot_moy_male <- c()
-# for (position in dta_graph1_male$Position){
-#   moy <- c(dta$Yearly_salary[(which(dta$Gender == 'Male') %in% (which(dta$Position2 == position)))])
-#   moy <- mean(moy, na.rm = TRUE)
-#   tot_moy_male <- c(tot_moy_male, moy)
-# }
-
-
-
-###### Graph 3
+### Graph 3
 
 # Pré-traitement des grades professionnels
 # On garde 3 niveaux : Junior, Middle et Senior
@@ -374,4 +345,3 @@ graph3
 # que les femmes.
 
 # Conclusion
-#
